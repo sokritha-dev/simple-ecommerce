@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Package, Calendar, DollarSign } from 'lucide-react'
 
 interface OrderItem {
@@ -28,11 +29,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    loadOrders()
-  }, [])
-
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/login')
@@ -57,7 +54,11 @@ export default function OrdersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    loadOrders()
+  }, [loadOrders])
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -148,9 +149,11 @@ export default function OrdersPage() {
                       {order.items.map((item) => (
                         <div key={item.id} className="flex items-center space-x-3">
                           {item.product.image && (
-                            <img
+                            <Image
                               src={item.product.image}
                               alt={item.product.name}
+                              width={48}
+                              height={48}
                               className="w-12 h-12 object-cover rounded-lg"
                             />
                           )}

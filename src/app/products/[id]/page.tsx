@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { ShoppingCart, ArrowLeft, Plus, Minus } from 'lucide-react'
 
 interface Product {
@@ -21,11 +22,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [addingToCart, setAddingToCart] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    loadProduct()
-  }, [params.id])
-
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/${params.id}`)
       if (response.ok) {
@@ -41,7 +38,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    loadProduct()
+  }, [loadProduct])
 
   const addToCart = async () => {
     const token = localStorage.getItem('token')
@@ -119,9 +120,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {/* Product Image */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {product.image ? (
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
+                width={500}
+                height={384}
                 className="w-full h-96 object-cover"
               />
             ) : (

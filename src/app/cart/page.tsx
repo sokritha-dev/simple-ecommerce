@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 
 interface CartItem {
@@ -23,11 +24,7 @@ export default function CartPage() {
   const [updating, setUpdating] = useState<string | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    loadCartItems()
-  }, [])
-
-  const loadCartItems = async () => {
+  const loadCartItems = useCallback(async () => {
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/login')
@@ -52,7 +49,11 @@ export default function CartPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    loadCartItems()
+  }, [loadCartItems])
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 0) return
@@ -129,7 +130,6 @@ export default function CartPage() {
       })
 
       if (response.ok) {
-        const order = await response.json()
         alert('Order placed successfully!')
         router.push('/orders')
       } else {
@@ -179,9 +179,11 @@ export default function CartPage() {
                     <div className="p-6">
                       <div className="flex items-center space-x-4">
                         {item.product.image && (
-                          <img
+                          <Image
                             src={item.product.image}
                             alt={item.product.name}
+                            width={80}
+                            height={80}
                             className="w-20 h-20 object-cover rounded-lg"
                           />
                         )}

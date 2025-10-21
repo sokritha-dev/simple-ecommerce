@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -24,6 +24,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { quantity } = body
 
@@ -37,13 +38,13 @@ export async function PUT(
     if (quantity === 0) {
       // Remove item from cart
       await prisma.cartItem.delete({
-        where: { id: params.id }
+        where: { id }
       })
       return NextResponse.json({ message: 'Item removed from cart' })
     }
 
     const cartItem = await prisma.cartItem.update({
-      where: { id: params.id },
+      where: { id },
       data: { quantity },
       include: { product: true }
     })
@@ -60,7 +61,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -80,8 +81,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.cartItem.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Item removed from cart' })

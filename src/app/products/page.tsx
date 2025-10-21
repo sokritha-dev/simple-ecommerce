@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search, Filter, ShoppingCart } from 'lucide-react'
 
 interface Product {
@@ -38,12 +39,7 @@ export default function ProductsPage() {
   })
   const [categories, setCategories] = useState<string[]>([])
 
-  useEffect(() => {
-    loadProducts()
-    loadCategories()
-  }, [search, category, page])
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -65,14 +61,19 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [search, category, page])
+
+  useEffect(() => {
+    loadProducts()
+    loadCategories()
+  }, [loadProducts])
 
   const loadCategories = async () => {
     try {
       const response = await fetch('/api/products')
       if (response.ok) {
         const data = await response.json()
-        const uniqueCategories = [...new Set(data.products.map((p: Product) => p.category))]
+        const uniqueCategories = [...new Set(data.products.map((p: Product) => p.category))] as string[]
         setCategories(uniqueCategories)
       }
     } catch (error) {
@@ -175,9 +176,11 @@ export default function ProductsPage() {
               {products.map((product) => (
                 <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   {product.image && (
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
+                      width={500}
+                      height={192}
                       className="w-full h-48 object-cover"
                     />
                   )}

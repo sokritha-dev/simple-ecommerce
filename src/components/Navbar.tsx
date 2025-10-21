@@ -6,7 +6,7 @@ import { ShoppingCart, User, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<{ name: string; email: string; id: string; role: string } | null>(null)
   const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Navbar() {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        const userData = JSON.parse(localStorage.getItem('user') || '{}')
+        const userData = JSON.parse(localStorage.getItem('user') || '{}') as { name: string; email: string; id: string; role: string }
         setUser(userData)
       } catch (error) {
         console.error('Error parsing user data:', error)
@@ -36,7 +36,7 @@ export default function Navbar() {
         })
         if (response.ok) {
           const cartItems = await response.json()
-          setCartCount(cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0))
+          setCartCount(cartItems.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0))
         }
       } catch (error) {
         console.error('Error loading cart count:', error)

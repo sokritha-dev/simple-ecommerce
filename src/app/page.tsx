@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Star, ShoppingBag, Truck, Shield } from 'lucide-react'
 
 interface Product {
@@ -115,9 +116,11 @@ export default function Home() {
               {featuredProducts.map((product) => (
                 <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   {product.image && (
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
+                      width={500}
+                      height={192}
                       className="w-full h-48 object-cover"
                     />
                   )}
